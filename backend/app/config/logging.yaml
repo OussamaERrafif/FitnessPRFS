@@ -1,0 +1,162 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  default:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  detailed:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(funcName)s:%(lineno)d - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  json:
+    format: '{"timestamp": "%(asctime)s", "logger": "%(name)s", "level": "%(levelname)s", "module": "%(module)s", "function": "%(funcName)s", "line": %(lineno)d, "message": "%(message)s"}'
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: default
+    stream: ext://sys.stdout
+
+  file_info:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: detailed
+    filename: logs/app.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+
+  file_error:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: logs/error.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+
+  file_debug:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: logs/debug.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 3
+    encoding: utf8
+
+  file_api:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: logs/api.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+
+  file_api_errors:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: logs/api_errors.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+
+  file_api_slow:
+    class: logging.handlers.RotatingFileHandler
+    level: WARNING
+    formatter: detailed
+    filename: logs/api_slow.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 3
+    encoding: utf8
+
+  file_api_access:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: logs/api_access.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 10
+    encoding: utf8
+
+  file_security:
+    class: logging.handlers.RotatingFileHandler
+    level: WARNING
+    formatter: detailed
+    filename: logs/security.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 10
+    encoding: utf8
+
+loggers:
+  app:
+    level: DEBUG
+    handlers: [console, file_info, file_error, file_debug]
+    propagate: false
+
+  app.api:
+    level: INFO
+    handlers: [console, file_api]
+    propagate: false
+
+  app.api.requests:
+    level: INFO
+    handlers: [file_api_access]
+    propagate: false
+
+  app.api.errors:
+    level: ERROR
+    handlers: [console, file_api_errors, file_error]
+    propagate: false
+
+  app.api.slow:
+    level: WARNING
+    handlers: [console, file_api_slow]
+    propagate: false
+
+  app.auth:
+    level: INFO
+    handlers: [console, file_security]
+    propagate: false
+
+  app.services:
+    level: INFO
+    handlers: [console, file_info, file_error]
+    propagate: false
+
+  uvicorn:
+    level: INFO
+    handlers: [console, file_info]
+    propagate: false
+
+  uvicorn.access:
+    level: INFO
+    handlers: [file_api]
+    propagate: false
+
+  uvicorn.error:
+    level: WARNING
+    handlers: [console, file_error]
+    propagate: false
+
+  fastapi:
+    level: INFO
+    handlers: [console, file_api]
+    propagate: false
+
+  sqlalchemy:
+    level: WARNING
+    handlers: [console, file_debug]
+    propagate: false
+
+  sqlalchemy.engine:
+    level: WARNING
+    handlers: [file_debug]
+    propagate: false
+
+root:
+  level: INFO
+  handlers: [console, file_info, file_error]
